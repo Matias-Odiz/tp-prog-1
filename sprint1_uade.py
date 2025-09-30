@@ -94,6 +94,7 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
     return True
 
 def leer_personaje(clave):
+    """Imprime la información de un personaje por su clave."""
     if clave not in personajes_40k:
         print(f"No se encontró el personaje con clave '{clave}'.")
         return None
@@ -161,9 +162,6 @@ def personajes_activos():
         print(f"- {nombre}")
     if not nombres:
         print("No hay personajes activos.")
-
-def imprimir_personaje_por_clave(clave):
-    return leer_personaje(clave) is not None
 
 def listar_personajes():
     print("\n--- Lista de personajes Warhammer 40k ---")
@@ -255,7 +253,7 @@ def main():
 
         elif opcion == "5":
             clave = input("Ingrese la clave del personaje a imprimir: ")
-            imprimir_personaje_por_clave(clave)
+            leer_personaje(clave)
 
         elif opcion == "6":
             listar_personajes()
@@ -278,5 +276,5 @@ def main():
 
         input("\nPresione ENTER para volver al menú.")
 
-# Punto de entrada al programa
+
 main()
