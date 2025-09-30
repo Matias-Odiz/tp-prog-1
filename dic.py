@@ -1,0 +1,37 @@
+personajes_40k = {
+    "Guilliman": {
+        "nombre": "Roboute Guilliman",
+        "faccion": "Ultramarines",
+        "rol": "Primarca",
+        "arma": "Espada del Emperador",
+        "estado": "Vivo"
+    },
+    "Abaddon": {
+        "nombre": "Abaddon el Saqueador",
+        "faccion": "Black Legion",
+        "rol": "Señor del Caos",
+        "arma": "Garra de Horus",
+        "estado": "Activo"
+    },
+    "Eldrad": {
+        "nombre": "Eldrad Ulthran",
+        "faccion": "Aeldari",
+        "rol": "Vidente",
+        "arma": "Lanza bruja",
+        "estado": "Activo"
+    },
+    "Ghazghkull": {
+        "nombre": "Ghazghkull Thraka",
+        "faccion": "Orkos",
+        "rol": "Kaudillo",
+        "arma": "Garra de poder",
+        "estado": "Activo"
+    },
+    "Trazyn": {
+        "nombre": "Trazyn el Infinito",
+        "faccion": "Necrones",
+        "rol": "Señor Necrón",
+        "arma": "Empalador",
+        "estado": "Activo"
+    }
+}
