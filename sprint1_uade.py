@@ -70,10 +70,28 @@ personajes_40k = {
     }
 }
 
+archivo = "Archivos_administratum.txt"
+
 #----------------------------------------------------------------------------------------------
 # FUNCIONES
 #----------------------------------------------------------------------------------------------
-def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
+import json
+import os
+
+import os
+
+import json
+import os
+
+def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo", archivo_json="Archivos_administratum.json"):
+    # Cargar archivo si existe, o iniciar un diccionario vacío
+    if os.path.exists(archivo_json):
+        with open(archivo_json, "r", encoding="utf-8") as f:
+            personajes_40k = json.load(f)
+    else:
+        personajes_40k = {}
+
+    # Validaciones
     if clave in personajes_40k:
         print(f"El personaje con clave '{clave}' ya existe.")
         return False
@@ -83,6 +101,8 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
         for i, f in enumerate(facciones_validas, 1):
             print(f"  {i}. {f}")
         return False
+
+    # Agregar el personaje
     personajes_40k[clave] = {
         "nombre": nombre,
         "faccion": faccion,
@@ -90,7 +110,12 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
         "arma": arma,
         "estado": estado
     }
-    print(f"✅ Personaje '{nombre}' creado exitosamente con clave '{clave}'.")
+
+    # Guardar en el JSON (sobreescribe con la nueva versión)
+    with open(archivo_json, "w", encoding="utf-8") as f:
+        json.dump(personajes_40k, f, indent=4, ensure_ascii=False)
+
+    print(f"✅ Personaje '{nombre}' creado y guardado correctamente en {archivo_json}.")
     return True
 
 def leer_personaje(clave):
@@ -188,6 +213,20 @@ def reporte_conteo_faccion():
         print(f"{faccion}: {cantidad}")
     print("----------------------------------------")
 
+def guardar_en_txt(texto):
+    with open(archivo, "a") as f:
+        f.write(texto + "\n")
+    print("¡personaje archivado correctamente!")
+
+def consultar_txt():
+    try:
+        with open(archivo, "r") as f:
+            lineas = [linea.strip() for linea in f]
+        return lineas
+    except FileNotFoundError:
+        print("El archivo no existe aún.")
+        return []
+    
 #----------------------------------------------------------------------------------------------
 # MENÚ PRINCIPAL
 #----------------------------------------------------------------------------------------------
@@ -206,6 +245,7 @@ def main():
         print("[8] Mostrar personajes activos (lambda y comprensión)")
         print("[9] Reporte tabla completa")
         print("[10] Reporte conteo por facción")
+        print("[11] administratum")
         print("[0] Salir")
         print("---------------------------")
         opcion = input("Seleccione una opción: ")
@@ -270,6 +310,12 @@ def main():
 
         elif opcion == "10":
             reporte_conteo_faccion()
+
+        elif opcion == "11":
+            guardar_en_txt()
+
+        elif opcion == "12":
+            consultar_txt()
 
         else:
             print("Opción inválida. Intente nuevamente.")
