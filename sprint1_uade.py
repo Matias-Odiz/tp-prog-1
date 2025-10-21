@@ -115,7 +115,7 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo", archivo_
     with open(archivo_json, "w", encoding="utf-8") as f:
         json.dump(personajes_40k, f, indent=4, ensure_ascii=False)
 
-    print(f"✅ Personaje '{nombre}' creado y guardado correctamente en {archivo_json}.")
+    print(f" Personaje '{nombre}' creado y guardado correctamente en {archivo_json}.")
     return True
 
 def leer_personaje(clave):
@@ -179,14 +179,20 @@ def borrar_personaje(clave):
         return False
 
 def personajes_activos():
-    """Lista por comprensión y función lambda: muestra nombres de personajes activos."""
+    """Lista por comprensión y función lambda: guarda los personajes activos en un archivo reporte.txt."""
     activos = list(filter(lambda x: personajes_40k[x]['estado'] == 'Activo', personajes_40k))
     nombres = [personajes_40k[clave]['nombre'] for clave in activos]
-    print("\nPersonajes activos:")
-    for nombre in nombres:
-        print(f"- {nombre}")
-    if not nombres:
-        print("No hay personajes activos.")
+
+    with open("reporte.txt", "w", encoding="utf-8") as archivo:
+        archivo.write("=== Personajes activos ===\n")
+        if nombres:
+            for nombre in nombres:
+                archivo.write(f"- {nombre}\n")
+        else:
+            archivo.write("No hay personajes activos.\n")
+
+    print(" Reporte generado correctamente en 'reporte.txt'")
+
 
 def listar_personajes():
     print("\n--- Lista de personajes Warhammer 40k ---")
@@ -212,20 +218,18 @@ def reporte_conteo_faccion():
     for faccion, cantidad in conteo.items():
         print(f"{faccion}: {cantidad}")
     print("----------------------------------------")
-
-def guardar_en_txt(texto):
-    with open(archivo, "a") as f:
-        f.write(texto + "\n")
-    print("¡personaje archivado correctamente!")
-
-def consultar_txt():
+    
+def leer_reporte():
+    """Lee y muestra el contenido del archivo reporte.txt."""
     try:
-        with open(archivo, "r") as f:
-            lineas = [linea.strip() for linea in f]
-        return lineas
+        with open("reporte.txt", "r", encoding="utf-8") as archivo:
+            contenido = archivo.read()
+            print("\n=== Contenido de reporte.txt ===")
+            print(contenido)
     except FileNotFoundError:
-        print("El archivo no existe aún.")
-        return []
+        print(" No se encontró el archivo 'reporte.txt'. Generá el reporte primero con la función personajes_activos().")
+    except Exception as e:
+        print(f" Ocurrió un error al leer el archivo: {e}")
     
 #----------------------------------------------------------------------------------------------
 # MENÚ PRINCIPAL
@@ -235,17 +239,17 @@ def main():
         print("\n---------------------------")
         print("--- MENÚ WARHAMMER 40K ---")
         print("---------------------------")
-        print("[1] Agregar personaje")
+        print("[1] Crear personaje")
         print("[2] Consultar personaje")
         print("[3] Actualizar personaje")
         print("[4] Eliminar personaje (estado Inactivo)")
-        print("[5] Imprimir personaje")
-        print("[6] Listar todos los personajes")
+        print("[5] Imprimir personaje mediante Clave")
+        print("[6] Listar todos los personajes registrados")
         print("[7] Borrar personaje definitivamente")
         print("[8] Mostrar personajes activos (lambda y comprensión)")
         print("[9] Reporte tabla completa")
         print("[10] Reporte conteo por facción")
-        print("[11] administratum")
+        print("[11] Leer reporte")
         print("[0] Salir")
         print("---------------------------")
         opcion = input("Seleccione una opción: ")
@@ -310,13 +314,9 @@ def main():
 
         elif opcion == "10":
             reporte_conteo_faccion()
-
+            
         elif opcion == "11":
-            guardar_en_txt()
-
-        elif opcion == "12":
-            consultar_txt()
-
+            leer_reporte()
         else:
             print("Opción inválida. Intente nuevamente.")
 
