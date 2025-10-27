@@ -1,26 +1,26 @@
 """
 -----------------------------------------------------------------------------------------------
 Título: Gestor de Personajes Warhammer 40k
-Fecha: 29/09/2025
-Autor: Grupo 1 - Integrantes: Matías Odiz
+Fecha: 27/10/2025
+Autor: 
 
 Descripción:
 Gestión de personajes de Warhammer 40k: crear, leer, actualizar, eliminar e imprimir.
-
-Pendientes:
-
+Actualiza automáticamente tanto el JSON como el diccionario Python en dic.py.
 -----------------------------------------------------------------------------------------------
 """
 
 #----------------------------------------------------------------------------------------------
 # MÓDULOS
 #----------------------------------------------------------------------------------------------
-# No se requieren módulos externos
-
+import json
+import os
 
 #----------------------------------------------------------------------------------------------
 # DATOS INICIALES
 #----------------------------------------------------------------------------------------------
+from dic import personajes_40k  # importa personajes base
+
 facciones_validas = (
     "Ultramarines", "Black Legion", "Aeldari", "Orkos", "Necrones",
     "Imperial Fists", "Blood Angels", "Dark Angels", "Space Wolves",
@@ -32,205 +32,150 @@ facciones_validas = (
     "Grey Knights", "Deathwatch", "Custodes"
 )
 
-personajes_40k = {
-    "Guilliman": {
-        "nombre": "Roboute Guilliman",
-        "faccion": "Ultramarines",
-        "rol": "Primarca",
-        "arma": "Espada del Emperador",
-        "estado": "Vivo"
-    },
-    "Abaddon": {
-        "nombre": "Abaddon el Saqueador",
-        "faccion": "Black Legion",
-        "rol": "Señor del Caos",
-        "arma": "Garra de Horus",
-        "estado": "Activo"
-    },
-    "Eldrad": {
-        "nombre": "Eldrad Ulthran",
-        "faccion": "Aeldari",
-        "rol": "Vidente",
-        "arma": "Lanza bruja",
-        "estado": "Activo"
-    },
-    "Ghazghkull": {
-        "nombre": "Ghazghkull Thraka",
-        "faccion": "Orkos",
-        "rol": "Kaudillo",
-        "arma": "Garra de poder",
-        "estado": "Activo"
-    },
-    "Trazyn": {
-        "nombre": "Trazyn el Infinito",
-        "faccion": "Necrones",
-        "rol": "Señor Necrón",
-        "arma": "Empalador",
-        "estado": "Activo"
-    }
-}
-
-archivo = "Archivos_administratum.txt"
+ARCHIVO_JSON = "Archivos_administratum.json"
+ARCHIVO_DIC = "dic.py"
 
 #----------------------------------------------------------------------------------------------
-# FUNCIONES
+# FUNCIONES AUXILIARES
 #----------------------------------------------------------------------------------------------
-import json
-import os
 
-import os
+def guardar_json(diccionario):
+    """Guarda el diccionario en el archivo JSON."""
+    with open(ARCHIVO_JSON, "w", encoding="utf-8") as f:
+        json.dump(diccionario, f, indent=4, ensure_ascii=False)
 
-import json
-import os
-
-def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo", archivo_json="Archivos_administratum.json"):
-    # Cargar archivo si existe, o iniciar un diccionario vacío
-    if os.path.exists(archivo_json):
-        with open(archivo_json, "r", encoding="utf-8") as f:
-            personajes_40k = json.load(f)
+def cargar_json():
+    """Carga el diccionario desde el JSON si existe."""
+    if os.path.exists(ARCHIVO_JSON):
+        with open(ARCHIVO_JSON, "r", encoding="utf-8") as f:
+            return json.load(f)
     else:
-        personajes_40k = {}
+        return {}
 
-    # Validaciones
-    if clave in personajes_40k:
+def guardar_dicpy(diccionario):
+    """Actualiza el archivo dic.py con el contenido del diccionario."""
+    with open(ARCHIVO_DIC, "w", encoding="utf-8") as f:
+        f.write("personajes_40k = ")
+        json.dump(diccionario, f, indent=4, ensure_ascii=False)
+    print("Archivo dic.py actualizado correctamente.")
+
+def sincronizar_archivos(diccionario):
+    """Guarda tanto el JSON como el diccionario Python."""
+    guardar_json(diccionario)
+    guardar_dicpy(diccionario)
+
+#----------------------------------------------------------------------------------------------
+# FUNCIONES PRINCIPALES
+#----------------------------------------------------------------------------------------------
+
+def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
+    personajes = cargar_json()
+    if clave in personajes:
         print(f"El personaje con clave '{clave}' ya existe.")
-        return False
+        return
     if faccion not in facciones_validas:
         print(f"La facción '{faccion}' no es válida.")
-        print("Facciones válidas disponibles:")
-        for i, f in enumerate(facciones_validas, 1):
-            print(f"  {i}. {f}")
-        return False
-
-    # Agregar el personaje
-    personajes_40k[clave] = {
+        return
+    personajes[clave] = {
         "nombre": nombre,
         "faccion": faccion,
         "rol": rol,
         "arma": arma,
         "estado": estado
     }
-
-    # Guardar en el JSON (sobreescribe con la nueva versión)
-    with open(archivo_json, "w", encoding="utf-8") as f:
-        json.dump(personajes_40k, f, indent=4, ensure_ascii=False)
-
-    print(f" Personaje '{nombre}' creado y guardado correctamente en {archivo_json}.")
-    return True
+    sincronizar_archivos(personajes)
+    print(f"Personaje '{nombre}' creado y guardado correctamente.")
 
 def leer_personaje(clave):
-    """Imprime la información de un personaje por su clave."""
-    if clave not in personajes_40k:
+    personajes = cargar_json()
+    if clave not in personajes:
         print(f"No se encontró el personaje con clave '{clave}'.")
-        return None
-    personaje = personajes_40k[clave]
+        return
+    p = personajes[clave]
     print(f"\n=== Información del personaje '{clave}' ===")
-    print(f"Nombre: {personaje['nombre']}")
-    print(f"Facción: {personaje['faccion']}")
-    print(f"Rol: {personaje['rol']}")
-    print(f"Arma: {personaje['arma']}")
-    print(f"Estado: {personaje['estado']}")
+    for campo, valor in p.items():
+        print(f"{campo.capitalize()}: {valor}")
     print("=" * 40)
-    return personaje
 
 def actualizar_personaje(clave, nombre=None, faccion=None, rol=None, arma=None, estado=None):
-    if clave not in personajes_40k:
+    personajes = cargar_json()
+    if clave not in personajes:
         print(f"No se encontró el personaje con clave '{clave}'.")
-        return False
-    if faccion is not None and faccion not in facciones_validas:
+        return
+    if faccion and faccion not in facciones_validas:
         print(f"La facción '{faccion}' no es válida.")
-        print("Facciones válidas disponibles:")
-        for i, f in enumerate(facciones_validas, 1):
-            print(f"  {i}. {f}")
-        return False
-    if nombre is not None:
-        personajes_40k[clave]["nombre"] = nombre
-        print(f"Nombre actualizado a '{nombre}' para el personaje '{clave}'.")
-    if faccion is not None:
-        personajes_40k[clave]["faccion"] = faccion
-        print(f"Facción actualizada a '{faccion}' para el personaje '{clave}'.")
-    if rol is not None:
-        personajes_40k[clave]["rol"] = rol
-        print(f"Rol actualizado a '{rol}' para el personaje '{clave}'.")
-    if arma is not None:
-        personajes_40k[clave]["arma"] = arma
-        print(f"Arma actualizada a '{arma}' para el personaje '{clave}'.")
-    if estado is not None:
-        personajes_40k[clave]["estado"] = estado
-        print(f"Estado actualizado a '{estado}' para el personaje '{clave}'.")
-    return True
+        return
+    if nombre: personajes[clave]["nombre"] = nombre
+    if faccion: personajes[clave]["faccion"] = faccion
+    if rol: personajes[clave]["rol"] = rol
+    if arma: personajes[clave]["arma"] = arma
+    if estado: personajes[clave]["estado"] = estado
+    sincronizar_archivos(personajes)
+    print(f"Personaje '{clave}' actualizado correctamente.")
 
 def eliminar_personaje(clave):
-    if clave not in personajes_40k:
+    personajes = cargar_json()
+    if clave not in personajes:
         print(f"No se encontró el personaje con clave '{clave}'.")
-        return False
-    personajes_40k[clave]["estado"] = "Inactivo"
-    print(f"Personaje '{clave}' eliminado (estado cambiado a 'Inactivo').")
-    return True
+        return
+    personajes[clave]["estado"] = "Inactivo"
+    sincronizar_archivos(personajes)
+    print(f"Personaje '{clave}' marcado como 'Inactivo'.")
 
 def borrar_personaje(clave):
-    """Elimina completamente el personaje del diccionario."""
-    if clave in personajes_40k:
-        del personajes_40k[clave]
-        print(f"Personaje '{clave}' borrado definitivamente.")
-        return True
-    else:
+    personajes = cargar_json()
+    if clave not in personajes:
         print(f"No se encontró el personaje con clave '{clave}'.")
-        return False
+        return
+    del personajes[clave]
+    sincronizar_archivos(personajes)
+    print(f"Personaje '{clave}' eliminado definitivamente.")
 
 def personajes_activos():
-    """Lista por comprensión y función lambda: guarda los personajes activos en un archivo reporte.txt."""
-    activos = list(filter(lambda x: personajes_40k[x]['estado'] == 'Activo', personajes_40k))
-    nombres = [personajes_40k[clave]['nombre'] for clave in activos]
-
+    personajes = cargar_json()
+    activos = [p["nombre"] for p in personajes.values() if p["estado"].lower() == "activo"]
     with open("reporte.txt", "w", encoding="utf-8") as archivo:
-        archivo.write("=== Personajes activos ===\n")
-        if nombres:
-            for nombre in nombres:
-                archivo.write(f"- {nombre}\n")
-        else:
-            archivo.write("No hay personajes activos.\n")
-
-    print(" Reporte generado correctamente en 'reporte.txt'")
-
+        archivo.write("=== Personajes Activos ===\n")
+        for nombre in activos:
+            archivo.write(f"- {nombre}\n")
+    print("Reporte generado correctamente en 'reporte.txt'.")
 
 def listar_personajes():
-    print("\n--- Lista de personajes Warhammer 40k ---")
-    for clave, datos in personajes_40k.items():
+    personajes = cargar_json()
+    print("\n--- Lista de Personajes Warhammer 40k ---")
+    for clave, datos in personajes.items():
         print(f"{clave}: {datos['nombre']} ({datos['faccion']}) - Estado: {datos['estado']}")
-    print("-----------------------------------------")
+    print("------------------------------------------")
 
 def reporte_tabla_completa():
+    personajes = cargar_json()
     print("\n{:<12} {:<25} {:<18} {:<15} {:<20} {:<10}".format(
         "Clave", "Nombre", "Facción", "Rol", "Arma", "Estado"))
     print("-" * 100)
-    for clave, datos in personajes_40k.items():
+    for clave, datos in personajes.items():
         print("{:<12} {:<25} {:<18} {:<15} {:<20} {:<10}".format(
             clave, datos['nombre'], datos['faccion'], datos['rol'], datos['arma'], datos['estado']))
     print("-" * 100)
 
 def reporte_conteo_faccion():
+    personajes = cargar_json()
     conteo = {}
-    for datos in personajes_40k.values():
-        faccion = datos['faccion']
+    for p in personajes.values():
+        faccion = p["faccion"]
         conteo[faccion] = conteo.get(faccion, 0) + 1
     print("\n--- Conteo de personajes por facción ---")
     for faccion, cantidad in conteo.items():
         print(f"{faccion}: {cantidad}")
     print("----------------------------------------")
-    
+
 def leer_reporte():
-    """Lee y muestra el contenido del archivo reporte.txt."""
     try:
-        with open("reporte.txt", "r", encoding="utf-8") as archivo:
-            contenido = archivo.read()
+        with open("reporte.txt", "r", encoding="utf-8") as f:
             print("\n=== Contenido de reporte.txt ===")
-            print(contenido)
+            print(f.read())
     except FileNotFoundError:
-        print(" No se encontró el archivo 'reporte.txt'. Generá el reporte primero con la función personajes_activos().")
-    except Exception as e:
-        print(f" Ocurrió un error al leer el archivo: {e}")
-    
+        print("No se encontró 'reporte.txt'. Generá el reporte primero con 'personajes_activos()'.")
+
 #----------------------------------------------------------------------------------------------
 # MENÚ PRINCIPAL
 #----------------------------------------------------------------------------------------------
@@ -243,13 +188,12 @@ def main():
         print("[2] Consultar personaje")
         print("[3] Actualizar personaje")
         print("[4] Eliminar personaje (estado Inactivo)")
-        print("[5] Imprimir personaje mediante Clave")
-        print("[6] Listar todos los personajes registrados")
-        print("[7] Borrar personaje definitivamente")
-        print("[8] Mostrar personajes activos (lambda y comprensión)")
-        print("[9] Reporte tabla completa")
-        print("[10] Reporte conteo por facción")
-        print("[11] Leer reporte")
+        print("[5] Borrar personaje definitivamente")
+        print("[6] Listar todos los personajes")
+        print("[7] Mostrar personajes activos (genera reporte.txt)")
+        print("[8] Reporte tabla completa")
+        print("[9] Reporte conteo por facción")
+        print("[10] Leer reporte")
         print("[0] Salir")
         print("---------------------------")
         opcion = input("Seleccione una opción: ")
@@ -257,70 +201,49 @@ def main():
         if opcion == "0":
             print("¡Hasta la próxima batalla!")
             break
-
         elif opcion == "1":
             clave = input("Clave única del personaje: ")
             nombre = input("Nombre completo: ")
             print("Facciones válidas:")
-            for i, f in enumerate(facciones_validas, 1):
-                print(f"{i}. {f}")
+            for f in facciones_validas:
+                print(f"- {f}")
             faccion = input("Facción: ")
             rol = input("Rol: ")
-            arma = input("Arma principal: ")
-            estado = input("Estado (Activo/Vivo/Inactivo): ")
+            arma = input("Arma: ")
+            estado = input("Estado (Activo/Inactivo): ") or "Activo"
+            if estado not in ["Activo", "Inactivo"]:
+                print("Error, ingrese 'Activo' o 'Inactivo'")
+                estado = input("Estado (Activo/Inactivo): ") or "Activo"
             crear_personaje(clave, nombre, faccion, rol, arma, estado)
-
         elif opcion == "2":
-            clave = input("Ingrese la clave del personaje a consultar: ")
-            leer_personaje(clave)
-
+            leer_personaje(input("Clave del personaje: "))
         elif opcion == "3":
-            clave = input("Ingrese la clave del personaje a actualizar: ")
-            print("Deje vacío el campo que no desea modificar.")
-            nombre = input("Nuevo nombre: ")
-            faccion = input("Nueva facción: ")
-            rol = input("Nuevo rol: ")
-            arma = input("Nueva arma: ")
-            estado = input("Nuevo estado: ")
-            actualizar_personaje(
-                clave,
-                nombre if nombre else None,
-                faccion if faccion else None,
-                rol if rol else None,
-                arma if arma else None,
-                estado if estado else None
-            )
-
+            clave = input("Clave a actualizar: ")
+            nombre = input("Nuevo nombre (Enter para omitir): ") or None
+            faccion = input("Nueva facción (Enter para omitir): ") or None
+            rol = input("Nuevo rol (Enter para omitir): ") or None
+            arma = input("Nueva arma (Enter para omitir): ") or None
+            estado = input("Nuevo estado (Enter para omitir): ") or None
+            actualizar_personaje(clave, nombre, faccion, rol, arma, estado)
         elif opcion == "4":
-            clave = input("Ingrese la clave del personaje a eliminar: ")
-            eliminar_personaje(clave)
-
+            eliminar_personaje(input("Clave del personaje: "))
         elif opcion == "5":
-            clave = input("Ingrese la clave del personaje a imprimir: ")
-            leer_personaje(clave)
-
+            borrar_personaje(input("Clave del personaje: "))
         elif opcion == "6":
             listar_personajes()
-
         elif opcion == "7":
-            clave = input("Ingrese la clave del personaje a borrar definitivamente: ")
-            borrar_personaje(clave)
-
-        elif opcion == "8":
             personajes_activos()
-
-        elif opcion == "9":
+        elif opcion == "8":
             reporte_tabla_completa()
-
-        elif opcion == "10":
+        elif opcion == "9":
             reporte_conteo_faccion()
-            
-        elif opcion == "11":
+        elif opcion == "10":
             leer_reporte()
         else:
-            print("Opción inválida. Intente nuevamente.")
+            print("⚠️ Opción inválida.")
 
-        input("\nPresione ENTER para volver al menú.")
+        input("\nPresione ENTER para continuar...")
 
-
-main()
+#----------------------------------------------------------------------------------------------
+if __name__ == "__main__":
+    main()
