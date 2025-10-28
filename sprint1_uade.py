@@ -6,7 +6,7 @@ Autor:
 
 Descripción:
 Gestión de personajes de Warhammer 40k: crear, leer, actualizar, eliminar e imprimir.
-Actualiza automáticamente tanto el JSON como el diccionario Python en dic.py.
+Almacena los datos en formato JSON para mantener la persistencia.
 -----------------------------------------------------------------------------------------------
 """
 
@@ -15,12 +15,11 @@ Actualiza automáticamente tanto el JSON como el diccionario Python en dic.py.
 #----------------------------------------------------------------------------------------------
 import json
 import os
+from datetime import datetime
 
 #----------------------------------------------------------------------------------------------
 # DATOS INICIALES
 #----------------------------------------------------------------------------------------------
-from dic import personajes_40k  # importa personajes base
-
 facciones_validas = (
     "Ultramarines", "Black Legion", "Aeldari", "Orkos", "Necrones",
     "Imperial Fists", "Blood Angels", "Dark Angels", "Space Wolves",
@@ -33,7 +32,6 @@ facciones_validas = (
 )
 
 ARCHIVO_JSON = "Archivos_administratum.json"
-ARCHIVO_DIC = "dic.py"
 
 #----------------------------------------------------------------------------------------------
 # FUNCIONES AUXILIARES
@@ -41,34 +39,68 @@ ARCHIVO_DIC = "dic.py"
 
 def guardar_json(diccionario):
     """Guarda el diccionario en el archivo JSON."""
-    with open(ARCHIVO_JSON, "w", encoding="utf-8") as f:
-        json.dump(diccionario, f, indent=4, ensure_ascii=False)
+    try:
+        with open(ARCHIVO_JSON, "w", encoding="utf-8") as f:
+            json.dump(diccionario, f, indent=4, ensure_ascii=False)
+    except Exception as e:
+        print(f"Error al guardar los datos: {e}")
+        return False
+    return True
 
 def cargar_json():
     """Carga el diccionario desde el JSON si existe."""
-    if os.path.exists(ARCHIVO_JSON):
-        with open(ARCHIVO_JSON, "r", encoding="utf-8") as f:
-            return json.load(f)
-    else:
+    try:
+        if os.path.exists(ARCHIVO_JSON):
+            with open(ARCHIVO_JSON, "r", encoding="utf-8") as f:
+                return json.load(f)
+        else:
+            print("Creando nuevo archivo de datos...")
+            guardar_json({})  # Crear archivo vacío si no existe
+            return {}
+    except Exception as e:
+        print(f"Error al cargar los datos: {e}")
         return {}
 
-def guardar_dicpy(diccionario):
-    """Actualiza el archivo dic.py con el contenido del diccionario."""
-    with open(ARCHIVO_DIC, "w", encoding="utf-8") as f:
-        f.write("personajes_40k = ")
-        json.dump(diccionario, f, indent=4, ensure_ascii=False)
-    print("Archivo dic.py actualizado correctamente.")
-
 def sincronizar_archivos(diccionario):
-    """Guarda tanto el JSON como el diccionario Python."""
+    """Guarda el diccionario en el archivo JSON."""
     guardar_json(diccionario)
-    guardar_dicpy(diccionario)
+
+def pedir_estado():
+    """Solicita el estado del personaje de manera amigable."""
+    while True:
+        respuesta = input("¿El personaje está activo? (si/no): ").lower()
+        if respuesta in ['si', 's', 'sí']:
+            return "Activo"
+        elif respuesta in ['no', 'n']:
+            return "No Activo"
+        print("Por favor, responde 'si' o 'no'")
+
+def pedir_faccion():
+    """Muestra las facciones como lista numerada y permite seleccionar una."""
+    print("\nFacciones disponibles:")
+    for i, faccion in enumerate(facciones_validas, 1):
+        print(f"[{i}] {faccion}")
+    
+    while True:
+        try:
+            seleccion = int(input("\nSelecciona el número de la facción: "))
+            if 1 <= seleccion <= len(facciones_validas):
+                return facciones_validas[seleccion - 1]
+            print(f"Por favor, elige un número entre 1 y {len(facciones_validas)}")
+        except ValueError:
+            print("Por favor, ingresa un número válido")
 
 #----------------------------------------------------------------------------------------------
 # FUNCIONES PRINCIPALES
 #----------------------------------------------------------------------------------------------
 
-def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
+def guardar_log(mensaje):
+    """Guarda un mensaje en el archivo log.txt."""
+    with open("log.txt", "a", encoding="utf-8") as f:
+        fecha = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+        f.write(f"{fecha} - {mensaje}\n")
+
+def crear_personaje(clave, nombre, faccion, rol, arma, estado=None):
     personajes = cargar_json()
     if clave in personajes:
         print(f"El personaje con clave '{clave}' ya existe.")
@@ -76,6 +108,11 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
     if faccion not in facciones_validas:
         print(f"La facción '{faccion}' no es válida.")
         return
+    
+    # Si no se proporcionó estado, pedirlo
+    if estado is None:
+        estado = pedir_estado()
+    
     personajes[clave] = {
         "nombre": nombre,
         "faccion": faccion,
@@ -84,6 +121,7 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado="Activo"):
         "estado": estado
     }
     sincronizar_archivos(personajes)
+    guardar_log(f"Personaje creado: {nombre}")
     print(f"Personaje '{nombre}' creado y guardado correctamente.")
 
 def leer_personaje(clave):
@@ -102,43 +140,40 @@ def actualizar_personaje(clave, nombre=None, faccion=None, rol=None, arma=None, 
     if clave not in personajes:
         print(f"No se encontró el personaje con clave '{clave}'.")
         return
+    
+    nombre_actual = personajes[clave]["nombre"]
+    if nombre: 
+        personajes[clave]["nombre"] = nombre
+    if faccion == "seleccionar": 
+        faccion = pedir_faccion()
     if faccion and faccion not in facciones_validas:
         print(f"La facción '{faccion}' no es válida.")
         return
-    if nombre: personajes[clave]["nombre"] = nombre
-    if faccion: personajes[clave]["faccion"] = faccion
-    if rol: personajes[clave]["rol"] = rol
-    if arma: personajes[clave]["arma"] = arma
-    if estado: personajes[clave]["estado"] = estado
+    if faccion:
+        personajes[clave]["faccion"] = faccion
+    if rol:
+        personajes[clave]["rol"] = rol
+    if arma:
+        personajes[clave]["arma"] = arma
+    if estado == "seleccionar":
+        estado = pedir_estado()
+    if estado:
+        personajes[clave]["estado"] = estado
+    
     sincronizar_archivos(personajes)
+    guardar_log(f"Personaje actualizado: {nombre_actual}")
     print(f"Personaje '{clave}' actualizado correctamente.")
-
-def eliminar_personaje(clave):
-    personajes = cargar_json()
-    if clave not in personajes:
-        print(f"No se encontró el personaje con clave '{clave}'.")
-        return
-    personajes[clave]["estado"] = "Inactivo"
-    sincronizar_archivos(personajes)
-    print(f"Personaje '{clave}' marcado como 'Inactivo'.")
 
 def borrar_personaje(clave):
     personajes = cargar_json()
     if clave not in personajes:
         print(f"No se encontró el personaje con clave '{clave}'.")
         return
+    nombre = personajes[clave]["nombre"]
     del personajes[clave]
     sincronizar_archivos(personajes)
+    guardar_log(f"Personaje borrado: {nombre}")
     print(f"Personaje '{clave}' eliminado definitivamente.")
-
-def personajes_activos():
-    personajes = cargar_json()
-    activos = [p["nombre"] for p in personajes.values() if p["estado"].lower() == "activo"]
-    with open("reporte.txt", "w", encoding="utf-8") as archivo:
-        archivo.write("=== Personajes Activos ===\n")
-        for nombre in activos:
-            archivo.write(f"- {nombre}\n")
-    print("Reporte generado correctamente en 'reporte.txt'.")
 
 def listar_personajes():
     personajes = cargar_json()
@@ -174,9 +209,16 @@ def leer_reporte():
             print("\n=== Contenido de reporte.txt ===")
             print(f.read())
     except FileNotFoundError:
-        print("No se encontró 'reporte.txt'. Generá el reporte primero con 'personajes_activos()'.")
+        print("No se encontró el archivo 'reporte.txt'.")
 
-#----------------------------------------------------------------------------------------------
+def leer_log():
+    """Muestra el contenido del archivo de log."""
+    try:
+        with open("log.txt", "r", encoding="utf-8") as f:
+            print("\n=== Registro de operaciones ===")
+            print(f.read())
+    except FileNotFoundError:
+        print("No hay registros disponibles.")#----------------------------------------------------------------------------------------------
 # MENÚ PRINCIPAL
 #----------------------------------------------------------------------------------------------
 def main():
@@ -187,13 +229,12 @@ def main():
         print("[1] Crear personaje")
         print("[2] Consultar personaje")
         print("[3] Actualizar personaje")
-        print("[4] Eliminar personaje (estado Inactivo)")
-        print("[5] Borrar personaje definitivamente")
-        print("[6] Listar todos los personajes")
-        print("[7] Mostrar personajes activos (genera reporte.txt)")
-        print("[8] Reporte tabla completa")
-        print("[9] Reporte conteo por facción")
-        print("[10] Leer reporte")
+        print("[4] Borrar personaje definitivamente")
+        print("[5] Listar todos los personajes")
+        print("[6] Reporte tabla completa")
+        print("[7] Reporte conteo por facción")
+        print("[8] Leer reporte")
+        print("[9] Ver registro de operaciones")
         print("[0] Salir")
         print("---------------------------")
         opcion = input("Seleccione una opción: ")
@@ -204,41 +245,38 @@ def main():
         elif opcion == "1":
             clave = input("Clave única del personaje: ")
             nombre = input("Nombre completo: ")
-            print("Facciones válidas:")
-            for f in facciones_validas:
-                print(f"- {f}")
-            faccion = input("Facción: ")
+            faccion = pedir_faccion()
             rol = input("Rol: ")
             arma = input("Arma: ")
-            estado = input("Estado (Activo/Inactivo): ") or "Activo"
-            if estado not in ["Activo", "Inactivo"]:
-                print("Error, ingrese 'Activo' o 'Inactivo'")
-                estado = input("Estado (Activo/Inactivo): ") or "Activo"
-            crear_personaje(clave, nombre, faccion, rol, arma, estado)
+            crear_personaje(clave, nombre, faccion, rol, arma)
         elif opcion == "2":
             leer_personaje(input("Clave del personaje: "))
         elif opcion == "3":
             clave = input("Clave a actualizar: ")
             nombre = input("Nuevo nombre (Enter para omitir): ") or None
-            faccion = input("Nueva facción (Enter para omitir): ") or None
+            
+            cambiar_faccion = input("¿Deseas cambiar la facción? (si/no): ").lower()
+            faccion = "seleccionar" if cambiar_faccion in ['si', 's', 'sí'] else None
+            
             rol = input("Nuevo rol (Enter para omitir): ") or None
             arma = input("Nueva arma (Enter para omitir): ") or None
-            estado = input("Nuevo estado (Enter para omitir): ") or None
+            
+            cambiar_estado = input("¿Deseas cambiar el estado? (si/no): ").lower()
+            estado = "seleccionar" if cambiar_estado in ['si', 's', 'sí'] else None
+            
             actualizar_personaje(clave, nombre, faccion, rol, arma, estado)
         elif opcion == "4":
-            eliminar_personaje(input("Clave del personaje: "))
-        elif opcion == "5":
             borrar_personaje(input("Clave del personaje: "))
-        elif opcion == "6":
+        elif opcion == "5":
             listar_personajes()
-        elif opcion == "7":
-            personajes_activos()
-        elif opcion == "8":
+        elif opcion == "6":
             reporte_tabla_completa()
-        elif opcion == "9":
+        elif opcion == "7":
             reporte_conteo_faccion()
-        elif opcion == "10":
+        elif opcion == "8":
             leer_reporte()
+        elif opcion == "9":
+            leer_log()
         else:
             print("⚠️ Opción inválida.")
 

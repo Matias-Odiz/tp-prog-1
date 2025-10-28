@@ -1,0 +1,6 @@
+2025-10-27 21:03:43 - Se eliminó definitivamente el personaje 'Ghazghkull Thraka' (clave: Ghazghkull)
+2025-10-27 21:06:35 - Personaje eliminado: Eldrad Ulthran
+2025-10-27 21:06:57 - Personaje borrado: Eldrad Ulthran
+2025-10-27 21:17:58 - Personaje creado: pepido
+2025-10-27 21:31:36 - Personaje creado: Pirulos powers
+2025-10-27 21:32:18 - Personaje actualizado: pepido

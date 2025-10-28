@@ -13,25 +13,11 @@ personajes_40k = {
         "arma": "Garra de Horus",
         "estado": "Activo"
     },
-    "Eldrad": {
-        "nombre": "Eldrad Ulthran",
-        "faccion": "Aeldari",
-        "rol": "Vidente",
-        "arma": "Lanza bruja",
-        "estado": "Activo"
-    },
-    "Ghazghkull": {
-        "nombre": "Ghazghkull Thraka",
-        "faccion": "Orkos",
-        "rol": "Kaudillo",
-        "arma": "Garra de poder",
-        "estado": "Activo"
-    },
-    "Trazyn": {
-        "nombre": "Trazyn el Infinito",
-        "faccion": "Necrones",
-        "rol": "Señor Necrón",
-        "arma": "Empalador",
-        "estado": "Activo"
+    "pepe": {
+        "nombre": "pepido",
+        "faccion": "Ultramarines",
+        "rol": "pepos",
+        "arma": "pepeide",
+        "estado": "No Activo"
     }
 }
