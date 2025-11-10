@@ -4,7 +4,7 @@
         "faccion": "Ultramarines",
         "rol": "Primarca",
         "arma": "Espada del Emperador",
-        "estado": "Vivo"
+        "estado": "Activo"
     },
     "Abaddon": {
         "nombre": "Abaddon el Saqueador",
@@ -18,7 +18,7 @@
         "faccion": "Ultramarines",
         "rol": "Maestria en pepes",
         "arma": "pepeide",
-        "estado": "No Activo"
+        "estado": "Activo"
     },
     "Pirulo": {
         "nombre": "Pirulos powers",
