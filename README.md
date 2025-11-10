@@ -1,131 +1,140 @@
 # Gestor de Personajes Warhammer 40k
 
-## Introducción
-Este proyecto es un sistema de gestión de personajes ambientado en el universo de Warhammer 40,000, un popular juego de mesa y universo de ciencia ficción. El sistema permite a los usuarios mantener un registro detallado de sus personajes, incluyendo su afiliación a diferentes facciones, roles de combate y equipamiento.
+## Descripción
+Sistema de gestión de personajes ambientado en el universo de Warhammer 40,000. Este proyecto permite mantener un registro detallado de personajes, incluyendo su afiliación a diferentes facciones, roles de combate y equipamiento.
 
-El proyecto está diseñado para ser una herramienta útil tanto para jugadores como para narradores, facilitando el seguimiento y la gestión de múltiples personajes en sus campañas y partidas.
+Fecha de última actualización: 9/11/2025
 
-## Descripción Técnica
-El sistema está implementado en Python y utiliza un enfoque modular con las siguientes características técnicas:
+## Características Principales
 
-### Estructura de Datos
-- Almacenamiento persistente en formato JSON
-- Registro de operaciones con timestamps
-- Validación de datos en tiempo real
-- Sistema de reportes flexible
+### Gestión de Personajes (CRUD)
+- ✨ **Crear** nuevos personajes con información completa
+- 🔍 **Consultar** detalles de personajes existentes
+- 📝 **Actualizar** información de personajes
+- ❌ **Borrar** personajes del sistema
+- 📋 **Listar** todos los personajes registrados
+- 📊 **Reportes** detallados y estadísticos
+- 📜 **Registro** de todas las operaciones
 
-### Manejo de Personajes
-- Sistema CRUD completo (Crear, Leer, Actualizar, Borrar)
-- Validación de facciones contra una lista predefinida
-- Estados de personaje (Activo/No Activo)
-- Sistema de claves únicas para identificación
+### Datos Almacenados por Personaje
+- Clave única
+- Nombre completo
+- Facción (de una lista predefinida)
+- Rol
+- Arma
+- Estado (Activo/No Activo)
 
-### Interfaz de Usuario
-- Menú interactivo en consola
-- Selección numérica de facciones
-- Confirmaciones de estado simplificadas (si/no)
-- Feedback inmediato de operaciones
-
-## Características y Funcionalidades
-- Crear nuevos personajes con nombre, facción, rol y armas
-- Consultar información detallada de personajes existentes
-- Actualizar datos de personajes
-- Borrar personajes del sistema
-- Generar reportes y estadísticas
-- Sistema de logs para seguimiento de cambios
-- Interfaz de menú interactiva
-
-## Requisitos
+## Requisitos Técnicos
 - Python 3.x
-- No requiere bibliotecas adicionales (usa módulos estándar)
+- Módulos utilizados (todos estándar):
+  - json: Para almacenamiento persistente
+  - os: Para operaciones de archivo
+  - datetime: Para registro de timestamps
+  - re: Para validación de nombres
 
-## Uso
-1. Ejecutar el programa:
-```bash
-python main.py
+## Estructura del Proyecto
+```
+tp-prog-1/
+├── main.py               # Programa principal
+├── Archivos_administratum.json  # Base de datos
+├── log.txt              # Registro de operaciones
+└── README.md            # Documentación
 ```
 
-2. Menú principal:
-- [1] Crear personaje
-- [2] Consultar personaje
-- [3] Actualizar personaje
-- [4] Borrar personaje definitivamente
-- [5] Listar todos los personajes
-- [6] Reporte tabla completa
-- [7] Reporte conteo por facción
-- [8] Ver registro de operaciones
-- [0] Salir
+## Funcionalidades Detalladas
 
-## Estructura del Código
+### Sistema de Menú
+1. Crear personaje
+2. Consultar personaje
+3. Actualizar personaje
+4. Borrar personaje definitivamente
+5. Listar todos los personajes
+6. Reporte tabla completa
+7. Reporte conteo por facción
+8. Ver registro de operaciones
+0. Salir
 
-### Módulo Principal (sprint1_uade.py)
-El código está organizado en varias secciones principales:
+### Validaciones Implementadas
+- Nombres: Solo letras y espacios (incluye caracteres especiales españoles)
+- Facciones: Lista predefinida de 31 facciones válidas
+- Estado: Sistema simplificado de entrada (si/no)
+- Claves: Verificación de duplicados
 
-1. **Funciones de Gestión de Datos**
-   - `guardar_json()`: Persistencia de datos en archivo JSON
-   - `cargar_json()`: Carga de datos desde archivo JSON
-   - `sincronizar_archivos()`: Asegura la consistencia de datos
-
-2. **Funciones de Interacción con Usuario**
-   - `pedir_estado()`: Interfaz simplificada para estado de personaje
-   - `pedir_faccion()`: Selector numérico de facciones
-   - `guardar_log()`: Registro de operaciones con timestamp
-
-3. **Funciones CRUD de Personajes**
-   - `crear_personaje()`: Alta de nuevos personajes
-   - `leer_personaje()`: Consulta de personajes individuales
-   - `actualizar_personaje()`: Modificación de atributos
-   - `borrar_personaje()`: Eliminación definitiva
-
-4. **Funciones de Reporte**
-   - `listar_personajes()`: Vista resumida de todos los personajes
-   - `reporte_tabla_completa()`: Informe detallado en formato tabla
-   - `reporte_conteo_faccion()`: Estadísticas por facción
-   - `leer_log()`: Historial de operaciones
-
-### Archivos del Sistema
-- `main.py`: Programa principal con toda la lógica
-- `Archivos_administratum.json`: Base de datos en formato JSON
-- `log.txt`: Registro cronológico de operaciones
+### Reportes Disponibles
+1. **Lista Resumida**: Muestra clave, nombre, facción y estado
+2. **Tabla Completa**: Presenta todos los datos en formato tabular
+3. **Conteo por Facción**: Estadísticas de personajes por facción
+4. **Registro de Operaciones**: Historial completo con timestamps
 
 ## Facciones Disponibles
+El sistema incluye 31 facciones canónicas del universo Warhammer 40k:
+
+### Space Marines
 - Ultramarines
-- Black Legion
-- Aeldari
-- Orkos
-- Necrones
 - Imperial Fists
 - Blood Angels
 - Dark Angels
 - Space Wolves
 - Iron Hands
-- Y muchas más...
+- Salamanders
+- Raven Guard
+- White Scars
 
-## Características Técnicas Adicionales
+### Chaos
+- Black Legion
+- Death Guard
+- Thousand Sons
+- World Eaters
+- Emperor's Children
+- Chaos Space Marines
+- Daemons
 
-### Manejo de Errores
-- Validación de entradas de usuario
-- Manejo de archivos con try-except
-- Mensajes de error descriptivos
-- Prevención de duplicados de claves
+### Xenos
+- Aeldari
+- Orkos
+- Necrones
+- Tau Empire
+- Tyranids
+- Drukhari
+- Craftworld Eldar
+- Harlequins
+- Ynnari
+
+### Imperium
+- Imperial Guard
+- Adeptus Mechanicus
+- Sisters of Battle
+- Grey Knights
+- Deathwatch
+- Custodes
+
+## Implementación Técnica
 
 ### Persistencia de Datos
-- Guardado automático tras cada operación
-- Formato JSON para fácil lectura y edición
-- Logs con timestamp para auditoría
-- Respaldo implícito en cada operación
+- Formato JSON para almacenamiento
+- Manejo de errores robusto
+- Registro de operaciones con timestamps
+- Backup implícito en cada operación
 
-### Extensibilidad
-- Diseño modular para fácil expansión
-- Constantes definidas para configuración
-- Funciones auxiliares reutilizables
-- Estructura clara y documentada
+### Características de Código
+- Funciones modulares y reutilizables
+- Documentación inline detallada
+- Manejo de errores con try-except
+- Uso de list comprehension para reportes
+- Funciones lambda para conteo de facciones
 
-## Autor
-Grupo integrado por: Venice Vito, Alice Augusto, Matias Odiz y Anzuinelli Ignacio
+## Autores
+- Venice Vito
+- Alice Augusto
+- Matias Odiz
+- Anzuinelli Ignacio
 
-## Notas de Implementación
-- El sistema utiliza Python 3.x por su simplicidad y potencia
-- No requiere bibliotecas externas, solo módulos estándar
-- Diseñado para ser robusto y fácil de mantener
-- Documentación integrada en el código
+## Uso del Sistema
+1. Ejecutar el programa:
+```bash
+python main.py
+```
+2. Seleccionar la opción deseada del menú
+3. Seguir las instrucciones en pantalla
+4. Las operaciones se registran automáticamente en `log.txt`
+5. Los datos se guardan automáticamente en `Archivos_administratum.json`

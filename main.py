@@ -2,7 +2,7 @@
 -----------------------------------------------------------------------------------------------
 Título: Gestor de Personajes Warhammer 40k
 Fecha: 9/11/2025
-Autor:
+Autor: Venice Vito, Alice Augusto, Matias Odiz y Anzuinelli Ignacio
 
 Descripción:
 Gestión de personajes de Warhammer 40k: crear, leer, actualizar, eliminar e imprimir.
@@ -16,6 +16,7 @@ Almacena los datos en formato JSON para mantener la persistencia.
 import json
 import os
 from datetime import datetime
+import re
 
 #----------------------------------------------------------------------------------------------
 # DATOS INICIALES
@@ -36,6 +37,14 @@ ARCHIVO_JSON = "Archivos_administratum.json"
 #----------------------------------------------------------------------------------------------
 # FUNCIONES AUXILIARES
 #----------------------------------------------------------------------------------------------
+
+def validar_nombre(nombre):
+    """Verifica que el nombre tenga solo letras y espacios con regex."""
+    patron = r"^[A-Za-zÁÉÍÓÚáéíóúñÑ ]+$"
+    if not re.match(patron, nombre):
+        print("El nombre solo puede contener letras y espacios.")
+        return False
+    return True
 
 def guardar_json(diccionario):
     """Guarda el diccionario en el archivo JSON."""
@@ -60,10 +69,6 @@ def cargar_json():
     except Exception as e:
         print(f"Error al cargar los datos: {e}")
         return {}
-
-def sincronizar_archivos(diccionario):
-    """Guarda el diccionario en el archivo JSON."""
-    guardar_json(diccionario)
 
 def pedir_estado():
     """
@@ -130,7 +135,7 @@ def crear_personaje(clave, nombre, faccion, rol, arma, estado=None):
         "arma": arma,
         "estado": estado
     }
-    sincronizar_archivos(personajes)
+    guardar_json(personajes)
     guardar_log(f"Personaje creado: {nombre}")
     print(f"Personaje '{nombre}' creado y guardado correctamente.")
 
@@ -179,7 +184,7 @@ def actualizar_personaje(clave, nombre=None, faccion=None, rol=None, arma=None, 
     if estado:
         personajes[clave]["estado"] = estado
     
-    sincronizar_archivos(personajes)
+    guardar_json(personajes)
     guardar_log(f"Personaje actualizado: {nombre_actual}")
     print(f"Personaje '{clave}' actualizado correctamente.")
 
@@ -194,7 +199,7 @@ def borrar_personaje(clave):
         return
     nombre = personajes[clave]["nombre"]
     del personajes[clave]
-    sincronizar_archivos(personajes)
+    guardar_json(personajes)
     guardar_log(f"Personaje borrado: {nombre}")
     print(f"Personaje '{clave}' eliminado definitivamente.")
 
@@ -212,27 +217,33 @@ def listar_personajes():
 def reporte_tabla_completa():
     """
     Genera un reporte detallado de todos los personajes en formato de tabla.
-    Muestra todos los atributos de cada personaje de manera ordenada.
+    Usa una **lista por comprensión** para construir todas las filas en una sola línea.
+    Muestra de forma ordenada la clave, nombre, facción, rol, arma y estado de cada personaje.
     """
     personajes = cargar_json()
     print("\n{:<12} {:<25} {:<18} {:<15} {:<20} {:<10}".format(
         "Clave", "Nombre", "Facción", "Rol", "Arma", "Estado"))
     print("-" * 100)
-    for clave, datos in personajes.items():
-        print("{:<12} {:<25} {:<18} {:<15} {:<20} {:<10}".format(
-            clave, datos['nombre'], datos['faccion'], datos['rol'], datos['arma'], datos['estado']))
+    
+    filas = [
+        "{:<12} {:<25} {:<18} {:<15} {:<20} {:<10}".format(
+            clave, p['nombre'], p['faccion'], p['rol'], p['arma'], p['estado']
+        )
+        for clave, p in personajes.items()
+    ]
+    
+    print("\n".join(filas))
     print("-" * 100)
 
 def reporte_conteo_faccion():
     """
-    Genera un reporte estadístico que muestra la cantidad de personajes por facción.
-    Útil para ver la distribución de personajes entre las diferentes facciones.
+    Genera un reporte estadístico con la cantidad de personajes por facción.
     """
     personajes = cargar_json()
-    conteo = {}
-    for p in personajes.values():
-        faccion = p["faccion"]
-        conteo[faccion] = conteo.get(faccion, 0) + 1
+    facciones = [p["faccion"] for p in personajes.values()]
+    contar = lambda f: facciones.count(f)
+    conteo = {f: contar(f) for f in set(facciones)}
+
     print("\n--- Conteo de personajes por facción ---")
     for faccion, cantidad in conteo.items():
         print(f"{faccion}: {cantidad}")
