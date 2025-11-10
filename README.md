@@ -1,4 +1,5 @@
 # Gestor de Personajes Warhammer 40k
+# Limk de la presentacion *https://docs.google.com/presentation/d/1WIEKsKsW7HC42dLxqBOLx-lMi9O3IE5BDvIep7WwY9k/edit?usp=sharing*
 
 ## Descripción
 Sistema de gestión de personajes ambientado en el universo de Warhammer 40,000. Este proyecto permite mantener un registro detallado de personajes, incluyendo su afiliación a diferentes facciones, roles de combate y equipamiento.
