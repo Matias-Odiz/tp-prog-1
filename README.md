@@ -3,7 +3,7 @@
 ## Descripción
 Sistema de gestión de personajes ambientado en el universo de Warhammer 40,000. Este proyecto permite mantener un registro detallado de personajes, incluyendo su afiliación a diferentes facciones, roles de combate y equipamiento.
 
-Fecha de última actualización: 9/11/2025
+Fecha de última actualización: 10/11/2025
 
 ## Características Principales
 
