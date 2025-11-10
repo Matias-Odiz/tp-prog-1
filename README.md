@@ -122,8 +122,7 @@ El código está organizado en varias secciones principales:
 - Estructura clara y documentada
 
 ## Autor
-[Tu Nombre]
-Fecha: 27/10/2025
+Grupo integrado por: Venice Vito, Alice Augusto, Matias Odiz y Anzuinelli Ignacio
 
 ## Notas de Implementación
 - El sistema utiliza Python 3.x por su simplicidad y potencia
